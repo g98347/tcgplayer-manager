@@ -44,6 +44,26 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'TCGPlayer Manager API is running' });
 });
 
+// File upload endpoint for auto-import
+app.post('/api/upload-csv', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Move file to uploads directory with original name
+    const originalName = req.file.originalname;
+    const targetPath = path.join(__dirname, 'uploads', originalName);
+    fs.renameSync(req.file.path, targetPath);
+
+    console.log(`File uploaded: ${originalName}`);
+    res.json({ message: 'File uploaded successfully', filename: originalName });
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Inventory routes
 app.get('/api/inventory', async (req, res) => {
   try {
@@ -1049,14 +1069,15 @@ const runGlobalAutoImport = async () => {
     // Create backup before import
     await db.createBackup();
 
-    const downloadsPath = 'C:\\Users\\giofl\\Downloads';
+    const uploadsPath = path.join(__dirname, 'uploads');
 
-    if (!fs.existsSync(downloadsPath)) {
-      console.log('Downloads folder not found, skipping auto import');
-      return;
+    // Ensure uploads directory exists
+    if (!fs.existsSync(uploadsPath)) {
+      fs.mkdirSync(uploadsPath, { recursive: true });
+      console.log('Created uploads directory');
     }
 
-    const files = fs.readdirSync(downloadsPath);
+    const files = fs.readdirSync(uploadsPath);
     const matchingFiles = files
       .filter(file =>
         file.toLowerCase().startsWith('tcgplayer_orderlist') ||
@@ -1064,13 +1085,13 @@ const runGlobalAutoImport = async () => {
       )
       .map(file => ({
         name: file,
-        path: path.join(downloadsPath, file),
-        stats: fs.statSync(path.join(downloadsPath, file))
+        path: path.join(uploadsPath, file),
+        stats: fs.statSync(path.join(uploadsPath, file))
       }))
       .filter(file => file.stats.isFile());
 
     if (matchingFiles.length === 0) {
-      console.log('No matching files found, skipping auto import');
+      console.log('No matching files found in uploads, skipping auto import');
       return;
     }
 
