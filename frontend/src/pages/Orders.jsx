@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Plus, Pencil, Trash2, Zap, Upload } from 'lucide-react'
-import api from '../api'
+import { Plus, Pencil, Trash2, Zap } from 'lucide-react'
+import axios from 'axios'
 import { formatDate } from '../utils/dateFormat'
 import { formatCurrency, formatPercent } from '../utils/numberFormat'
 import { isDateInPeriod } from '../utils/periodFilter'
@@ -12,7 +12,6 @@ export default function Orders() {
   const [loading, setLoading] = useState(true)
   const [editingOrder, setEditingOrder] = useState(null)
   const [showAddForm, setShowAddForm] = useState(false)
-  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     fetchOrders()
@@ -20,34 +19,12 @@ export default function Orders() {
 
   const fetchOrders = async () => {
     try {
-      const response = await api.get('/api/orders')
+      const response = await axios.get('http://localhost:3001/api/orders')
       setOrders(response.data)
     } catch (error) {
       console.error('Error fetching orders:', error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-
-    setUploading(true)
-    const formData = new FormData()
-    formData.append('file', file)
-
-    try {
-      await api.post('/api/upload-csv', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
-      alert('File uploaded successfully. It will be processed automatically.')
-      await fetchOrders()
-    } catch (error) {
-      console.error('Error uploading file:', error)
-      alert('Error uploading file: ' + (error.response?.data?.error || error.message))
-    } finally {
-      setUploading(false)
     }
   }
 
@@ -133,17 +110,14 @@ export default function Orders() {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-white">Orders</h2>
         <div className="flex gap-3">
-          <label className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors cursor-pointer">
-            <Upload className="w-4 h-4" />
-            {uploading ? 'Uploading...' : 'Upload CSV'}
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleFileUpload}
-              className="hidden"
-              disabled={uploading}
-            />
-          </label>
+          <button
+            onClick={handleAutoImport}
+            className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+            title="Auto-import from Downloads folder"
+          >
+            <Zap className="w-4 h-4" />
+            Auto Import
+          </button>
           <button
             onClick={() => setShowAddForm(true)}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

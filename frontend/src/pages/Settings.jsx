@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2, Save, Percent, DollarSign } from 'lucide-react'
-import api from '../api'
+import axios from 'axios'
 
 export default function Settings() {
   const [settings, setSettings] = useState([])

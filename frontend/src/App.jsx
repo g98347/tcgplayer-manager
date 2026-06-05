@@ -6,14 +6,6 @@ import Orders from './pages/Orders'
 import Costs from './pages/Costs'
 import Settings from './pages/Settings'
 
-// API base URL - uses environment variable or defaults to localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
-
-// Set global axios default
-if (typeof window !== 'undefined') {
-  window.API_BASE_URL = API_BASE_URL
-}
-
 function App() {
   return (
     <BrowserRouter>

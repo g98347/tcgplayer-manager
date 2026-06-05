@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Plus, Pencil, Trash2, Zap } from 'lucide-react'
-import api from '../api'
+import axios from 'axios'
 import { formatDate } from '../utils/dateFormat'
 import { formatCurrency } from '../utils/numberFormat'
 import { isDateInPeriod } from '../utils/periodFilter'

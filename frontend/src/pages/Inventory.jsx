@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2, Upload } from 'lucide-react'
-import api from '../api'
+import axios from 'axios'
 
 export default function Inventory() {
   const [inventory, setInventory] = useState([])
