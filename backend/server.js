@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const axios = require('axios');
 const Database = require('./database');
 const TCGPlayerAPI = require('./tcgplayer-api');
 const csv = require('csv-parser');
